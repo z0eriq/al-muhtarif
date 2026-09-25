@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Script from "next/script";
 import { META_PIXEL_ID } from "@/lib/meta-pixel";
@@ -8,20 +8,14 @@ import { trackMetaEvent } from "@/components/analytics/track-meta";
 
 export function MetaPixel() {
   const pathname = usePathname();
-  const [pixelReady, setPixelReady] = useState(false);
 
   useEffect(() => {
-    if (!pixelReady) return;
     trackMetaEvent("PageView");
-  }, [pathname, pixelReady]);
+  }, [pathname]);
 
   return (
     <>
-      <Script
-        id="meta-pixel"
-        strategy="afterInteractive"
-        onLoad={() => setPixelReady(true)}
-      >
+      <Script id="meta-pixel" strategy="afterInteractive">
         {`
 !function(f,b,e,v,n,t,s)
 {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
