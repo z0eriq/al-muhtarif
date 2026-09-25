@@ -31,6 +31,7 @@ export function absoluteUrl(path = ""): string {
   ).replace(/\/$/, "");
 
   if (!path) return base;
+  if (/^https?:\/\//i.test(path)) return path;
   return `${base}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
