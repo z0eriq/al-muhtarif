@@ -3,6 +3,7 @@ export type MetaStandardEvent =
   | "ViewContent"
   | "AddToCart"
   | "InitiateCheckout"
+  | "Lead"
   | "Purchase";
 
 export type MetaCustomData = {

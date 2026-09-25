@@ -24,6 +24,7 @@ type CapiServerEvent = {
   action_source: "website";
   user_data: Record<string, unknown>;
   custom_data?: Record<string, unknown>;
+  page_id?: string;
   original_event_data: {
     event_name: MetaStandardEvent;
     event_time: number;
@@ -115,6 +116,7 @@ export function buildCapiServerEvent(options: {
   const customData = compactRecord(
     options.customData as Record<string, unknown> | undefined,
   );
+  const pageId = process.env.META_PAGE_ID?.trim();
 
   return {
     event_name: options.eventName,
@@ -124,6 +126,7 @@ export function buildCapiServerEvent(options: {
     action_source: "website",
     user_data: buildUserData(options.user),
     ...(customData ? { custom_data: customData } : {}),
+    ...(pageId ? { page_id: pageId } : {}),
     original_event_data: {
       event_name: options.eventName,
       event_time: eventTime,

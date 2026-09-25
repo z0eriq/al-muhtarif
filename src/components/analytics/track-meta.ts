@@ -15,7 +15,10 @@ function readCookie(name: string): string | null {
 export function trackMetaEvent(
   eventName: MetaStandardEvent,
   customData?: MetaCustomData,
-  options?: { eventId?: string; sendToCapi?: boolean },
+  options?: {
+    eventId?: string;
+    sendToCapi?: boolean;
+  },
 ): string {
   const eventId = options?.eventId ?? crypto.randomUUID();
   const sendToCapi = options?.sendToCapi ?? true;

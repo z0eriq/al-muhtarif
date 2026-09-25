@@ -4,6 +4,17 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { trackMetaEvent } from "@/components/analytics/track-meta";
+
+function readCookie(name: string): string | null {
+  if (typeof document === "undefined") return null;
+  const prefix = `${name}=`;
+  const match = document.cookie
+    .split(";")
+    .map((part) => part.trim())
+    .find((part) => part.startsWith(prefix));
+  return match ? decodeURIComponent(match.slice(prefix.length)) : null;
+}
 
 export function ContactForm() {
   const [loading, setLoading] = useState(false);
@@ -27,12 +38,18 @@ export function ContactForm() {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          ...form,
+          fbp: readCookie("_fbp"),
+          fbc: readCookie("_fbc"),
+          eventSourceUrl: window.location.href,
+        }),
       });
       const data = (await res.json()) as {
         success: boolean;
         error?: string;
         message?: string;
+        eventId?: string;
       };
 
       if (!res.ok || !data.success) {
@@ -41,6 +58,9 @@ export function ContactForm() {
       }
 
       toast.success(data.message ?? "تم إرسال رسالتك بنجاح");
+      if (data.eventId) {
+        trackMetaEvent("Lead", undefined, { eventId: data.eventId, sendToCapi: false });
+      }
       setForm({ name: "", phone: "", email: "", message: "" });
     } catch {
       toast.error("حدث خطأ في الاتصال");

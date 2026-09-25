@@ -252,6 +252,16 @@ export function ProductDetailClient({
             href={waHref}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() =>
+              trackMetaEvent(
+                "Lead",
+                productMetaData({
+                  id: product.id,
+                  nameAr: product.nameAr,
+                  price: product.price,
+                }),
+              )
+            }
             className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#25D366] px-5 text-sm font-semibold text-white transition hover:bg-[#1ebe57]"
           >
             <MessageCircle className="h-4 w-4" />

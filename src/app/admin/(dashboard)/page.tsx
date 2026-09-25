@@ -8,6 +8,8 @@ import { ORDER_STATUS_LABELS } from "@/lib/constants";
 import { AdminTopbar } from "@/components/admin/topbar";
 import { StatCard } from "@/components/admin/stat-card";
 import { SalesChart } from "@/components/admin/sales-chart";
+import { DatasetQualityCard } from "@/components/admin/dataset-quality-card";
+import { getDatasetQuality } from "@/lib/meta-dataset-quality";
 import {
   DataTable,
   DataTableCell,
@@ -38,6 +40,7 @@ export default async function AdminDashboardPage() {
     recentOrders,
     topProducts,
     weekOrders,
+    datasetQuality,
   ] = await Promise.all([
     prisma.order.aggregate({
       _sum: { total: true },
@@ -83,6 +86,7 @@ export default async function AdminDashboardPage() {
       },
       select: { createdAt: true, total: true },
     }),
+    getDatasetQuality(),
   ]);
 
   const salesByDay = Array.from({ length: 7 }, (_, i) => {
@@ -148,6 +152,8 @@ export default async function AdminDashboardPage() {
           tone="primary"
         />
       </div>
+
+      <DatasetQualityCard events={datasetQuality.events} error={datasetQuality.error} />
 
       <div className="grid gap-6 xl:grid-cols-5">
         <div className="xl:col-span-3">

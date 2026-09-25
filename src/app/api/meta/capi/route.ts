@@ -11,6 +11,7 @@ const bodySchema = z.object({
     "ViewContent",
     "AddToCart",
     "InitiateCheckout",
+    "Lead",
   ]),
   eventId: z.string().min(8).max(128),
   eventSourceUrl: z.string().url().max(2048),
