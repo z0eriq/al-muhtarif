@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,7 @@ export function CheckoutFormClient({
   const { items, subtotal, clear } = useCart();
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string[]>>({});
+  const checkoutTracked = useRef(false);
 
   const [form, setForm] = useState({
     customerName: "",
@@ -37,7 +38,8 @@ export function CheckoutFormClient({
   });
 
   useEffect(() => {
-    if (items.length === 0) return;
+    if (checkoutTracked.current || items.length === 0) return;
+    checkoutTracked.current = true;
     trackMetaEvent("InitiateCheckout", {
       currency: "IQD",
       value: subtotal,
@@ -50,9 +52,7 @@ export function CheckoutFormClient({
       })),
       num_items: items.reduce((sum, item) => sum + item.quantity, 0),
     });
-    // Track once when checkout opens with the current cart.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [items, subtotal]);
 
   if (items.length === 0) {
     return (
