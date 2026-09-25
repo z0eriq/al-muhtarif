@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Heart, MessageCircle, ShoppingBag, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -16,6 +16,7 @@ import {
   productInquiryMessage,
 } from "@/lib/whatsapp";
 import type { SerializedProduct } from "@/services/products.service";
+import { productMetaData, trackMetaEvent } from "@/components/analytics/track-meta";
 
 type ProductDetailClientProps = {
   product: SerializedProduct;
@@ -57,6 +58,17 @@ export function ProductDetailClient({
     [whatsapp, product.nameAr, product.slug, product.sku],
   );
 
+  useEffect(() => {
+    trackMetaEvent(
+      "ViewContent",
+      productMetaData({
+        id: product.id,
+        nameAr: product.nameAr,
+        price: product.price,
+      }),
+    );
+  }, [product.id, product.nameAr, product.price]);
+
   const addToCart = () => {
     if (!inStock) {
       toast.error("المنتج غير متوفر حالياً");
@@ -72,6 +84,15 @@ export function ProductDetailClient({
       compareAtPrice: product.compareAtPrice,
       quantity: qty,
     });
+    trackMetaEvent(
+      "AddToCart",
+      productMetaData({
+        id: product.id,
+        nameAr: product.nameAr,
+        price: product.price,
+        quantity: qty,
+      }),
+    );
     toast.success("تمت الإضافة إلى السلة");
   };
 

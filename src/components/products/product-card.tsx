@@ -10,6 +10,7 @@ import { useCart } from "@/hooks/use-cart";
 import { useWishlist } from "@/hooks/use-wishlist";
 import { formatPrice } from "@/lib/utils";
 import type { SerializedProduct } from "@/services/products.service";
+import { productMetaData, trackMetaEvent } from "@/components/analytics/track-meta";
 
 type ProductCardProps = {
   product: SerializedProduct;
@@ -50,6 +51,15 @@ export function ProductCard({
       compareAtPrice: product.compareAtPrice,
       quantity: 1,
     });
+    trackMetaEvent(
+      "AddToCart",
+      productMetaData({
+        id: product.id,
+        nameAr: product.nameAr,
+        price: product.price,
+        quantity: 1,
+      }),
+    );
     toast.success(`تمت إضافة «${product.nameAr}» إلى السلة`);
   };
 

@@ -1,25 +1,27 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Script from "next/script";
 import { META_PIXEL_ID } from "@/lib/meta-pixel";
+import { trackMetaEvent } from "@/components/analytics/track-meta";
 
 export function MetaPixel() {
   const pathname = usePathname();
-  const isFirstLoad = useRef(true);
+  const [pixelReady, setPixelReady] = useState(false);
 
   useEffect(() => {
-    if (isFirstLoad.current) {
-      isFirstLoad.current = false;
-      return;
-    }
-    window.fbq?.("track", "PageView");
-  }, [pathname]);
+    if (!pixelReady) return;
+    trackMetaEvent("PageView");
+  }, [pathname, pixelReady]);
 
   return (
     <>
-      <Script id="meta-pixel" strategy="afterInteractive">
+      <Script
+        id="meta-pixel"
+        strategy="afterInteractive"
+        onLoad={() => setPixelReady(true)}
+      >
         {`
 !function(f,b,e,v,n,t,s)
 {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -30,7 +32,6 @@ t.src=v;s=b.getElementsByTagName(e)[0];
 s.parentNode.insertBefore(t,s)}(window, document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
 fbq('init', '${META_PIXEL_ID}');
-fbq('track', 'PageView');
         `.trim()}
       </Script>
       <noscript>

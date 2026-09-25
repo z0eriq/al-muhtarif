@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { useCart } from "@/hooks/use-cart";
 import { IRAQ_GOVERNORATES } from "@/lib/constants";
 import { formatPrice } from "@/lib/utils";
+import { trackMetaEvent } from "@/components/analytics/track-meta";
 
 type CheckoutFormClientProps = {
   currencySymbol?: string;
@@ -34,6 +35,24 @@ export function CheckoutFormClient({
     address: "",
     notes: "",
   });
+
+  useEffect(() => {
+    if (items.length === 0) return;
+    trackMetaEvent("InitiateCheckout", {
+      currency: "IQD",
+      value: subtotal,
+      content_type: "product",
+      content_ids: items.map((item) => item.productId),
+      contents: items.map((item) => ({
+        id: item.productId,
+        quantity: item.quantity,
+        item_price: item.price,
+      })),
+      num_items: items.reduce((sum, item) => sum + item.quantity, 0),
+    });
+    // Track once when checkout opens with the current cart.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (items.length === 0) {
     return (

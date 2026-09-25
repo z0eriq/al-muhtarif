@@ -9,6 +9,7 @@ import {
 } from "@/lib/whatsapp";
 import { getSettings } from "@/services/settings.service";
 import { ORDER_STATUS_LABELS } from "@/lib/constants";
+import { PurchaseTracker } from "@/components/analytics/purchase-tracker";
 
 type PageProps = {
   params: Promise<{ orderNumber: string }>;
@@ -38,6 +39,15 @@ export default async function OrderConfirmationPage({ params }: PageProps) {
 
   return (
     <div className="container-store py-10 md:py-14">
+      <PurchaseTracker
+        orderNumber={order.orderNumber}
+        value={Number(order.total)}
+        items={order.items.map((item) => ({
+          productId: item.productId,
+          quantity: item.quantity,
+          price: Number(item.price),
+        }))}
+      />
       <div className="mx-auto max-w-2xl rounded-2xl border border-border bg-white p-6 text-center shadow-sm md:p-10">
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 text-success">
           <CheckCircle2 className="h-9 w-9" />

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { customAlphabet } from "nanoid";
 import { prisma } from "@/lib/prisma";
 import { checkoutSchema } from "@/lib/validators";
+import { readRequestCookie, sendMetaCapiEvent } from "@/lib/meta-capi";
 
 const generateOrderCode = customAlphabet("0123456789ABCDEFGHJKLMNPQRSTUVWXYZ", 8);
 
@@ -185,6 +186,38 @@ export async function POST(request: Request) {
           total: true,
         },
       });
+    });
+
+    void sendMetaCapiEvent({
+      eventName: "Purchase",
+      eventId: order.orderNumber,
+      eventSourceUrl: `${(process.env.NEXT_PUBLIC_APP_URL ?? "https://www.al-muhtarif.com").replace(/\/$/, "")}/order/${order.orderNumber}`,
+      customData: {
+        currency: "IQD",
+        value: Number(order.total),
+        order_id: order.orderNumber,
+        content_type: "product",
+        content_ids: lineItems.map((item) => item.productId),
+        contents: lineItems.map((item) => ({
+          id: item.productId,
+          quantity: item.quantity,
+          item_price: item.price,
+        })),
+        num_items: lineItems.reduce((sum, item) => sum + item.quantity, 0),
+      },
+      user: {
+        email: input.customerEmail,
+        phone: input.customerPhone,
+        name: input.customerName,
+        city: input.governorate,
+        clientIp: ip,
+        userAgent: request.headers.get("user-agent"),
+        fbp: readRequestCookie(request, "_fbp"),
+        fbc: readRequestCookie(request, "_fbc"),
+        externalId: input.customerPhone,
+      },
+    }).catch((error) => {
+      console.error("[meta-capi] purchase failed", error);
     });
 
     return NextResponse.json({
