@@ -16,6 +16,20 @@ export type MetaUserPayload = {
   externalId?: string | null;
 };
 
+type CapiServerEvent = {
+  event_name: MetaStandardEvent;
+  event_time: number;
+  event_id: string;
+  event_source_url: string;
+  action_source: "website";
+  user_data: Record<string, unknown>;
+  custom_data?: Record<string, unknown>;
+  original_event_data: {
+    event_name: MetaStandardEvent;
+    event_time: number;
+  };
+};
+
 function sha256(value: string): string {
   return createHash("sha256").update(value).digest("hex");
 }
@@ -40,35 +54,81 @@ function hashedList(value?: string | null, transform?: (v: string) => string) {
   return [sha256(prepared)];
 }
 
-function firstName(name?: string | null): string | undefined {
-  const part = name?.trim().split(/\s+/)[0];
-  return part ? part.toLowerCase() : undefined;
+function nameParts(name?: string | null): { fn?: string; ln?: string } {
+  const parts = name?.trim().split(/\s+/).filter(Boolean) ?? [];
+  if (parts.length === 0) return {};
+  return {
+    fn: parts[0]?.toLowerCase(),
+    ln: parts.length > 1 ? parts.slice(1).join(" ").toLowerCase() : undefined,
+  };
+}
+
+function compactRecord(
+  input?: Record<string, unknown>,
+): Record<string, unknown> | undefined {
+  if (!input) return undefined;
+  const out: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(input)) {
+    if (value === undefined || value === null || value === "") continue;
+    if (Array.isArray(value)) {
+      const cleaned = value.filter((item) => item !== undefined && item !== null && item !== "");
+      if (cleaned.length === 0) continue;
+      out[key] = cleaned;
+      continue;
+    }
+    out[key] = value;
+  }
+  return Object.keys(out).length > 0 ? out : undefined;
 }
 
 export function buildUserData(user: MetaUserPayload): Record<string, unknown> {
-  const data: Record<string, unknown> = {};
-  const email = hashedList(user.email, normalizeEmail);
-  const phone = hashedList(user.phone, normalizeIraqiPhone);
-  const fn = hashedList(firstName(user.name));
-  const city = hashedList(user.city);
-  const externalId = hashedList(
-    user.externalId ?? user.phone ?? undefined,
-    (value) => normalizeIraqiPhone(value) || value.trim().toLowerCase(),
+  const { fn, ln } = nameParts(user.name);
+  const data: Record<string, unknown> = {
+    em: hashedList(user.email, normalizeEmail),
+    ph: hashedList(user.phone, normalizeIraqiPhone),
+    fn: hashedList(fn),
+    ln: hashedList(ln),
+    ct: hashedList(user.city),
+    country: [sha256("iq")],
+    external_id: hashedList(
+      user.externalId ?? user.phone ?? undefined,
+      (value) => normalizeIraqiPhone(value) || value.trim().toLowerCase(),
+    ),
+    client_ip_address:
+      user.clientIp && user.clientIp !== "unknown" ? user.clientIp : undefined,
+    client_user_agent: user.userAgent?.trim() || undefined,
+    fbp: user.fbp?.trim() || undefined,
+    fbc: user.fbc?.trim() || undefined,
+  };
+
+  return compactRecord(data) ?? {};
+}
+
+export function buildCapiServerEvent(options: {
+  eventName: MetaStandardEvent;
+  eventId: string;
+  eventSourceUrl: string;
+  customData?: MetaCustomData;
+  user: MetaUserPayload;
+}): CapiServerEvent {
+  const eventTime = Math.floor(Date.now() / 1000);
+  const customData = compactRecord(
+    options.customData as Record<string, unknown> | undefined,
   );
 
-  if (email) data.em = email;
-  if (phone) data.ph = phone;
-  if (fn) data.fn = fn;
-  if (city) data.ct = city;
-  data.country = [sha256("iq")];
-  if (externalId) data.external_id = externalId;
-  if (user.clientIp && user.clientIp !== "unknown") {
-    data.client_ip_address = user.clientIp;
-  }
-  if (user.userAgent) data.client_user_agent = user.userAgent;
-  if (user.fbp) data.fbp = user.fbp;
-  if (user.fbc) data.fbc = user.fbc;
-  return data;
+  return {
+    event_name: options.eventName,
+    event_time: eventTime,
+    event_id: options.eventId,
+    event_source_url: options.eventSourceUrl,
+    action_source: "website",
+    user_data: buildUserData(options.user),
+    ...(customData ? { custom_data: customData } : {}),
+    original_event_data: {
+      event_name: options.eventName,
+      event_time: eventTime,
+    },
+  };
 }
 
 export function getClientIp(request: Request): string {
@@ -99,24 +159,19 @@ export async function sendMetaCapiEvent(options: {
   const token = process.env.META_CAPI_ACCESS_TOKEN?.trim();
   if (!token || !META_PIXEL_ID) return;
 
-  const payload = {
-    data: [
-      {
-        event_name: options.eventName,
-        event_time: Math.floor(Date.now() / 1000),
-        event_id: options.eventId,
-        event_source_url: options.eventSourceUrl,
-        action_source: "website",
-        user_data: buildUserData(options.user),
-        custom_data: options.customData,
-      },
-    ],
-    access_token: token,
+  const payload: {
+    data: CapiServerEvent[];
+    test_event_code?: string;
+  } = {
+    data: [buildCapiServerEvent(options)],
   };
+
+  const testEventCode = process.env.META_CAPI_TEST_EVENT_CODE?.trim();
+  if (testEventCode) payload.test_event_code = testEventCode;
 
   try {
     const response = await fetch(
-      `https://graph.facebook.com/${GRAPH_VERSION}/${META_PIXEL_ID}/events`,
+      `https://graph.facebook.com/${GRAPH_VERSION}/${META_PIXEL_ID}/events?access_token=${encodeURIComponent(token)}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -124,9 +179,25 @@ export async function sendMetaCapiEvent(options: {
       },
     );
 
+    const detail = await response.text();
     if (!response.ok) {
-      const detail = await response.text();
       console.error("[meta-capi] event failed", response.status, detail.slice(0, 400));
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(detail) as {
+        events_received?: number;
+        messages?: unknown[];
+      };
+      if (parsed.messages && parsed.messages.length > 0) {
+        console.warn("[meta-capi] graph messages", parsed.messages);
+      }
+      if (parsed.events_received === 0) {
+        console.error("[meta-capi] graph accepted zero events", detail.slice(0, 400));
+      }
+    } catch {
+      // Graph sometimes returns a non-JSON body; the HTTP status already succeeded.
     }
   } catch (error) {
     console.error("[meta-capi] request failed", error);
