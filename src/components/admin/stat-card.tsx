@@ -1,18 +1,24 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { LucideIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
+import {
+  AlertTriangle,
+  DollarSign,
+  Package,
+  ShoppingBag,
+  Sparkles,
+  Users,
+} from "lucide-react";
+import { cn, formatPrice } from "@/lib/utils";
 
-type StatCardProps = {
-  title: string;
-  value: number;
-  format?: (n: number) => string;
-  icon: LucideIcon;
-  tone?: "primary" | "success" | "warning" | "danger" | "accent";
-  hint?: string;
-  animate?: boolean;
-};
+const ICONS = {
+  sales: DollarSign,
+  orders: ShoppingBag,
+  newOrders: Sparkles,
+  products: Package,
+  lowStock: AlertTriangle,
+  customers: Users,
+} as const;
 
 const TONE_STYLES = {
   primary: "bg-primary-light text-primary",
@@ -22,19 +28,43 @@ const TONE_STYLES = {
   accent: "bg-violet-50 text-accent",
 } as const;
 
+export type StatCardIcon = keyof typeof ICONS;
+export type StatCardTone = keyof typeof TONE_STYLES;
+
+type StatCardProps = {
+  title: string;
+  value: number;
+  formatKind?: "number" | "price";
+  icon: StatCardIcon;
+  tone?: StatCardTone;
+  hint?: string;
+  animate?: boolean;
+};
+
+function formatValue(value: number, formatKind: "number" | "price") {
+  if (formatKind === "price") {
+    return formatPrice(value);
+  }
+  return String(value);
+}
+
 export function StatCard({
   title,
   value,
-  format = (n) => String(n),
-  icon: Icon,
+  formatKind = "number",
+  icon,
   tone = "primary",
   hint,
   animate = true,
 }: StatCardProps) {
   const [display, setDisplay] = useState(0);
+  const Icon = ICONS[icon];
 
   useEffect(() => {
-    if (!animate) return;
+    if (!animate) {
+      setDisplay(value);
+      return;
+    }
 
     const duration = 700;
     const start = performance.now();
@@ -60,7 +90,7 @@ export function StatCard({
       <div className="min-w-0">
         <p className="text-sm font-medium text-muted">{title}</p>
         <p className="mt-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-          {format(shown)}
+          {formatValue(shown, formatKind)}
         </p>
         {hint ? <p className="mt-1 text-xs text-muted">{hint}</p> : null}
       </div>

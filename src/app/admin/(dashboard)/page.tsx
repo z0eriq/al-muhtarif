@@ -1,12 +1,4 @@
 import Link from "next/link";
-import {
-  DollarSign,
-  ShoppingBag,
-  Package,
-  AlertTriangle,
-  Users,
-  Sparkles,
-} from "lucide-react";
 import { format, subDays, startOfDay } from "date-fns";
 import { ar } from "date-fns/locale";
 import { auth } from "@/lib/auth";
@@ -119,40 +111,40 @@ export default async function AdminDashboardPage() {
         <StatCard
           title="إجمالي المبيعات"
           value={Number(salesAgg._sum.total ?? 0)}
-          format={formatPrice}
-          icon={DollarSign}
+          formatKind="price"
+          icon="sales"
           tone="primary"
         />
         <StatCard
           title="عدد الطلبات"
           value={ordersCount}
-          icon={ShoppingBag}
+          icon="orders"
           tone="accent"
         />
         <StatCard
           title="طلبات جديدة"
           value={newOrdersCount}
-          icon={Sparkles}
+          icon="newOrders"
           tone="warning"
           hint="بانتظار المعالجة"
         />
         <StatCard
           title="المنتجات"
           value={productsCount}
-          icon={Package}
+          icon="products"
           tone="success"
         />
         <StatCard
           title="مخزون منخفض"
           value={lowStockCount}
-          icon={AlertTriangle}
+          icon="lowStock"
           tone="danger"
           hint={`حد التنبيه: ${lowThreshold}`}
         />
         <StatCard
           title="العملاء"
           value={customersCount}
-          icon={Users}
+          icon="customers"
           tone="primary"
         />
       </div>
