@@ -1,5 +1,6 @@
 import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
+import { MetaPixel } from "@/components/analytics/meta-pixel";
 import { getSettings } from "@/services/settings.service";
 
 export default async function StoreLayout({
@@ -11,6 +12,7 @@ export default async function StoreLayout({
 
   return (
     <>
+      <MetaPixel />
       <Header
         storeNameAr={settings.storeNameAr}
         logo={settings.logo}
