@@ -42,14 +42,14 @@ export async function POST(request: NextRequest) {
       return jsonError("نوع الملف غير مدعوم. استخدم jpeg/png/webp/gif/svg");
     }
 
-    const bytes = new Uint8Array(await file.arrayBuffer());
+    const buffer = await file.arrayBuffer();
     const filename = `${nanoid(12)}.${ext}`;
     const key = `${folderRaw}/${filename}`;
 
     if (isR2Configured()) {
       const url = await uploadImageToR2({
         key,
-        body: bytes,
+        body: buffer,
         contentType: file.type,
       });
       return jsonSuccess({ url }, "تم رفع الصورة بنجاح");
@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
 
     const dir = path.join(process.cwd(), "public", "uploads", folderRaw);
     await mkdir(dir, { recursive: true });
-    await writeFile(path.join(dir, filename), bytes);
+    await writeFile(path.join(dir, filename), Buffer.from(buffer));
 
     return jsonSuccess(
       { url: `/uploads/${folderRaw}/${filename}` },

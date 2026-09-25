@@ -20,7 +20,7 @@ export function isR2Configured(): boolean {
 
 export async function uploadImageToR2(options: {
   key: string;
-  body: Uint8Array;
+  body: ArrayBuffer;
   contentType: string;
 }): Promise<string> {
   const accountId = requiredEnv("R2_ACCOUNT_ID");
@@ -34,13 +34,13 @@ export async function uploadImageToR2(options: {
     region: "auto",
   });
 
+  const payload = new Uint8Array(options.body);
   const endpoint = `https://${accountId}.r2.cloudflarestorage.com/${bucket}/${options.key}`;
   const response = await client.fetch(endpoint, {
     method: "PUT",
-    body: options.body,
+    body: new Blob([payload], { type: options.contentType }),
     headers: {
       "Content-Type": options.contentType,
-      "Content-Length": String(options.body.byteLength),
       "Cache-Control": "public, max-age=31536000, immutable",
     },
   });
