@@ -38,6 +38,8 @@ export const productSchema = z.object({
   status: z.enum(["ACTIVE", "DRAFT", "DISABLED"]).default("ACTIVE"),
   isFeatured: z.boolean().default(false),
   isNew: z.boolean().default(false),
+  installmentAvailable: z.boolean().default(false),
+  installmentUrl: optionalHttpUrl,
   tags: z.array(z.string().trim()).default([]),
   categoryIds: z.array(z.string().min(1)).min(1, "اختر تصنيفاً واحداً على الأقل"),
   images: z
@@ -50,7 +52,13 @@ export const productSchema = z.object({
     )
     .default([]),
   specifications: z.record(z.string(), z.string()).optional().nullable(),
-});
+}).refine(
+  (data) => !data.installmentAvailable || Boolean(data.installmentUrl),
+  {
+    message: "رابط التقسيط مطلوب عند تفعيل إمكانية التقسيط",
+    path: ["installmentUrl"],
+  },
+);
 
 export const categorySchema = z.object({
   nameAr: z.string().trim().min(2, "اسم التصنيف بالعربية مطلوب"),

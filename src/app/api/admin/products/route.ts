@@ -124,6 +124,8 @@ export async function POST(request: NextRequest) {
         status: data.status,
         isFeatured: data.isFeatured,
         isNew: data.isNew,
+        installmentAvailable: data.installmentAvailable,
+        installmentUrl: data.installmentUrl || null,
         tags: data.tags,
         specifications: data.specifications ?? undefined,
         categories: {

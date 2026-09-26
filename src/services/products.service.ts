@@ -33,6 +33,8 @@ export type SerializedProduct = {
   status: string;
   isFeatured: boolean;
   isNew: boolean;
+  installmentAvailable: boolean;
+  installmentUrl: string | null;
   tags: string[];
   specifications: Record<string, string> | null;
   soldCount: number;
@@ -63,6 +65,8 @@ function serializeProduct(
     status: string;
     isFeatured: boolean;
     isNew: boolean;
+    installmentAvailable: boolean;
+    installmentUrl: string | null;
     tags: string[];
     specifications: Prisma.JsonValue | null;
     soldCount: number;
@@ -108,6 +112,8 @@ function serializeProduct(
     status: product.status,
     isFeatured: product.isFeatured,
     isNew: product.isNew,
+    installmentAvailable: product.installmentAvailable,
+    installmentUrl: product.installmentUrl,
     tags: product.tags,
     specifications,
     soldCount: product.soldCount,

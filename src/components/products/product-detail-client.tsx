@@ -17,6 +17,7 @@ import {
 } from "@/lib/whatsapp";
 import type { SerializedProduct } from "@/services/products.service";
 import { productMetaData, trackMetaEvent } from "@/components/analytics/track-meta";
+import { InstallmentLink } from "@/components/products/installment-link";
 
 type ProductDetailClientProps = {
   product: SerializedProduct;
@@ -183,6 +184,11 @@ export function ProductDetailClient({
         >
           {inStock ? `متوفر في المخزون · ${product.stock} قطعة` : "غير متوفر حالياً"}
         </p>
+
+        <InstallmentLink
+          installmentAvailable={product.installmentAvailable}
+          installmentUrl={product.installmentUrl}
+        />
 
         {product.descriptionAr ? (
           <p className="leading-8 text-muted">{product.descriptionAr}</p>

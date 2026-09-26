@@ -11,6 +11,7 @@ import { useWishlist } from "@/hooks/use-wishlist";
 import { formatPrice } from "@/lib/utils";
 import type { SerializedProduct } from "@/services/products.service";
 import { productMetaData, trackMetaEvent } from "@/components/analytics/track-meta";
+import { InstallmentLink } from "@/components/products/installment-link";
 
 type ProductCardProps = {
   product: SerializedProduct;
@@ -93,6 +94,9 @@ export function ProductCard({
             <Badge variant="sale">خصم {discountPercent}%</Badge>
           ) : null}
           {product.isNew ? <Badge>جديد</Badge> : null}
+          {product.installmentAvailable && product.installmentUrl ? (
+            <Badge>تقسيط</Badge>
+          ) : null}
         </div>
 
         <button
@@ -156,6 +160,12 @@ export function ProductCard({
           >
             {inStock ? `متوفر (${product.stock})` : "غير متوفر"}
           </p>
+
+          <InstallmentLink
+            compact
+            installmentAvailable={product.installmentAvailable}
+            installmentUrl={product.installmentUrl}
+          />
 
           <div className="flex gap-2 md:hidden">
             <Button

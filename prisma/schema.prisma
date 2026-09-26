@@ -115,6 +115,8 @@ model Product {
   status            ProductStatus     @default(ACTIVE)
   isFeatured        Boolean           @default(false)
   isNew             Boolean           @default(false)
+  installmentAvailable Boolean        @default(false)
+  installmentUrl    String?
   tags              String[]
   specifications    Json?
   soldCount         Int               @default(0)

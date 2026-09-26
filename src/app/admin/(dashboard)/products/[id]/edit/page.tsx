@@ -65,6 +65,8 @@ export default async function EditProductPage({
           status: product.status,
           isFeatured: product.isFeatured,
           isNew: product.isNew,
+          installmentAvailable: product.installmentAvailable,
+          installmentUrl: product.installmentUrl,
           tags: product.tags,
           categoryIds: product.categories.map((c) => c.categoryId),
           images: product.images.map((img) => ({

@@ -25,6 +25,8 @@ export type ProductFormValues = {
   status: "ACTIVE" | "DRAFT" | "DISABLED";
   isFeatured: boolean;
   isNew: boolean;
+  installmentAvailable: boolean;
+  installmentUrl: string | null;
   tags: string[];
   categoryIds: string[];
   images: ImageItem[];
@@ -52,6 +54,8 @@ const emptyDefaults: ProductFormValues = {
   status: "ACTIVE",
   isFeatured: false,
   isNew: false,
+  installmentAvailable: false,
+  installmentUrl: "",
   tags: [],
   categoryIds: [],
   images: [],
@@ -72,6 +76,8 @@ export function ProductForm({
     categoryIds: initial?.categoryIds ?? [],
     images: initial?.images ?? [],
     specifications: initial?.specifications ?? {},
+    installmentAvailable: initial?.installmentAvailable ?? false,
+    installmentUrl: initial?.installmentUrl ?? "",
   });
   const [tagsInput, setTagsInput] = useState((initial?.tags ?? []).join(", "));
   const [specs, setSpecs] = useState<SpecRow[]>(() => {
@@ -142,6 +148,9 @@ export function ProductForm({
       descriptionAr: form.descriptionAr || null,
       descriptionEn: form.descriptionEn || null,
       compareAtPrice: form.compareAtPrice || null,
+      installmentUrl: form.installmentAvailable
+        ? form.installmentUrl || null
+        : form.installmentUrl || null,
       tags: tagsInput
         .split(",")
         .map((t) => t.trim())
@@ -377,6 +386,33 @@ export function ProductForm({
               />
               منتج جديد
             </label>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={form.installmentAvailable}
+                onChange={(e) => update("installmentAvailable", e.target.checked)}
+              />
+              إمكانية التقسيط
+            </label>
+            {form.installmentAvailable ? (
+              <div>
+                <label className="mb-1.5 block text-sm font-medium">
+                  رابط التقسيط *
+                </label>
+                <input
+                  className={inputClass}
+                  dir="ltr"
+                  required
+                  type="url"
+                  placeholder="https://..."
+                  value={form.installmentUrl ?? ""}
+                  onChange={(e) => update("installmentUrl", e.target.value)}
+                />
+                <p className="mt-1 text-xs text-muted">
+                  سيظهر زر التقسيط للعميل ويفتح هذا الرابط.
+                </p>
+              </div>
+            ) : null}
           </section>
 
           <section className="card-surface space-y-4 p-5">
