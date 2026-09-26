@@ -4,17 +4,12 @@ import path from "node:path";
 import { nanoid } from "nanoid";
 import { requireAuth, jsonError, jsonSuccess } from "@/lib/admin-auth";
 import { isR2Configured, uploadImageToR2 } from "@/lib/r2";
-
-const ALLOWED_TYPES: Record<string, string> = {
-  "image/jpeg": "jpg",
-  "image/png": "png",
-  "image/webp": "webp",
-  "image/gif": "gif",
-  "image/svg+xml": "svg",
-};
+import { imageExtensionForFile, resolvedImageContentType } from "@/lib/upload-image";
 
 const MAX_BYTES = 5 * 1024 * 1024;
 const FOLDERS = new Set(["products", "categories", "content"]);
+
+export const runtime = "nodejs";
 
 export async function POST(request: NextRequest) {
   const authResult = await requireAuth();
@@ -25,7 +20,7 @@ export async function POST(request: NextRequest) {
     const file = formData.get("file");
     const folderRaw = String(formData.get("folder") ?? "products");
 
-    if (!(file instanceof File)) {
+    if (!(file instanceof Blob) || file.size === 0) {
       return jsonError("ملف الصورة مطلوب");
     }
 
@@ -37,8 +32,13 @@ export async function POST(request: NextRequest) {
       return jsonError("حجم الصورة يجب ألا يتجاوز 5 ميجابايت");
     }
 
-    const ext = ALLOWED_TYPES[file.type];
-    if (!ext) {
+    const filenameHint = file instanceof File ? file.name : "";
+    const ext = imageExtensionForFile({ type: file.type, name: filenameHint });
+    const contentType = resolvedImageContentType({
+      type: file.type,
+      name: filenameHint,
+    });
+    if (!ext || !contentType) {
       return jsonError("نوع الملف غير مدعوم. استخدم jpeg/png/webp/gif/svg");
     }
 
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
       const url = await uploadImageToR2({
         key,
         body: buffer,
-        contentType: file.type,
+        contentType,
       });
       return jsonSuccess({ url }, "تم رفع الصورة بنجاح");
     }
@@ -72,6 +72,9 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     console.error("upload error", error);
+    if (error instanceof Error && error.message.startsWith("R2 upload failed")) {
+      return jsonError("تعذر حفظ الصورة في التخزين. حاول مرة أخرى.", 502);
+    }
     return jsonError("فشل رفع الصورة", 500);
   }
 }

@@ -1,4 +1,5 @@
 import { AwsClient } from "aws4fetch";
+import { r2PutHeaders } from "@/lib/upload-image";
 
 function requiredEnv(name: string): string {
   const value = process.env[name]?.trim();
@@ -34,15 +35,13 @@ export async function uploadImageToR2(options: {
     region: "auto",
   });
 
-  const payload = new Uint8Array(options.body);
+  // R2 rejects chunked PUTs with 411 MissingContentLength. Send a fixed-length
+  // body (ArrayBuffer) and include Content-Length on the signed request.
   const endpoint = `https://${accountId}.r2.cloudflarestorage.com/${bucket}/${options.key}`;
   const response = await client.fetch(endpoint, {
     method: "PUT",
-    body: new Blob([payload], { type: options.contentType }),
-    headers: {
-      "Content-Type": options.contentType,
-      "Cache-Control": "public, max-age=31536000, immutable",
-    },
+    body: options.body,
+    headers: r2PutHeaders(options.contentType, options.body.byteLength),
   });
 
   if (!response.ok) {

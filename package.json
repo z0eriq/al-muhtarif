@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test src/lib/http-url.test.ts src/lib/installment.test.ts",
+    "test": "tsx --test src/lib/http-url.test.ts src/lib/installment.test.ts src/lib/upload-image.test.ts",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
