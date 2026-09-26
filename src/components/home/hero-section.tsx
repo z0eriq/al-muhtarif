@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowLeft, ShoppingBag, MapPin, Wallet } from "lucide-react";
+import { ArrowLeft, CreditCard, ShoppingBag, MapPin, Wallet } from "lucide-react";
 import type { HomeContentData } from "@/services/settings.service";
 
 type HeroSectionProps = {
@@ -68,11 +68,11 @@ export function HeroSection({ content, storeNameAr }: HeroSectionProps) {
           {useBrandVisual ? (
             <div className="relative mx-auto w-full max-w-xl">
               <div className="absolute -inset-6 rounded-[2.25rem] bg-[radial-gradient(circle_at_center,_rgba(245,166,35,0.28),_transparent_62%)] blur-2xl" />
-              <div className="relative overflow-hidden rounded-[1.75rem] border border-black/40 bg-[#0b0b0b] shadow-brand">
+              <div className="relative overflow-hidden rounded-[1.75rem] border border-white/15 bg-gradient-to-br from-[#4c1d95] via-[#3b0764] to-[#6b21a8] shadow-brand">
                 <div className="relative flex aspect-square items-center justify-center p-8 sm:aspect-[4/3] sm:p-10">
-                  <div className="pointer-events-none absolute inset-0 opacity-40">
-                    <div className="absolute -right-16 -top-10 h-48 w-48 rounded-full border border-[#F5A623]/30" />
-                    <div className="absolute -bottom-12 -left-10 h-40 w-40 rounded-full border border-white/10" />
+                  <div className="pointer-events-none absolute inset-0 opacity-50">
+                    <div className="absolute -right-16 -top-10 h-48 w-48 rounded-full border border-[#F5A623]/35" />
+                    <div className="absolute -bottom-12 -left-10 h-40 w-40 rounded-full border border-white/20" />
                   </div>
                   <Image
                     src="/logo.png"
@@ -81,15 +81,19 @@ export function HeroSection({ content, storeNameAr }: HeroSectionProps) {
                     height={1024}
                     priority
                     unoptimized
-                    className="relative z-10 h-56 w-56 rounded-full object-cover shadow-[0_20px_60px_rgba(0,0,0,0.45)] sm:h-72 sm:w-72 md:h-80 md:w-80"
+                    className="relative z-10 h-56 w-56 rounded-full object-cover shadow-[0_20px_60px_rgba(46,16,101,0.45)] sm:h-72 sm:w-72 md:h-80 md:w-80"
                   />
                 </div>
-                <div className="flex flex-wrap gap-2 border-t border-white/10 bg-black/40 px-4 py-3 text-white">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-medium">
+                <div className="flex flex-wrap gap-2 border-t border-white/15 bg-[#2e1065]/70 px-4 py-3 text-white">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-medium">
                     <Wallet className="h-3.5 w-3.5" />
                     الدفع عند الاستلام
                   </span>
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-medium">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-medium">
+                    <CreditCard className="h-3.5 w-3.5" />
+                    نظام الأقساط عبر كي كارد
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-medium">
                     <MapPin className="h-3.5 w-3.5" />
                     الحلة – شارع 40
                   </span>
@@ -97,7 +101,7 @@ export function HeroSection({ content, storeNameAr }: HeroSectionProps) {
               </div>
             </div>
           ) : (
-            <div className="relative mx-auto aspect-[4/3] w-full max-w-xl overflow-hidden rounded-[1.75rem] border border-border/60 bg-[#0b0b0b] shadow-brand">
+            <div className="relative mx-auto aspect-[4/3] w-full max-w-xl overflow-hidden rounded-[1.75rem] border border-white/15 bg-gradient-to-br from-[#4c1d95] via-[#3b0764] to-[#6b21a8] shadow-brand">
               <Image
                 src={customImage!}
                 alt={content.heroTitle}
