@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import {
   AlertTriangle,
   DollarSign,
+  Mail,
   Package,
   ShoppingBag,
   Sparkles,
@@ -18,6 +19,7 @@ const ICONS = {
   products: Package,
   lowStock: AlertTriangle,
   customers: Users,
+  messages: Mail,
 } as const;
 
 const TONE_STYLES = {

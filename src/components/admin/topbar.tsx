@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Bell } from "lucide-react";
 
 type TopbarProps = {
@@ -20,15 +21,13 @@ export function AdminTopbar({ title, userName, subtitle }: TopbarProps) {
         </div>
 
         <div className="flex items-center gap-3">
-          <button
-            type="button"
+          <Link
+            href="/admin/messages"
             className="relative rounded-xl border border-border bg-white p-2.5 text-muted transition-colors hover:border-primary hover:text-primary"
-            aria-label="الإشعارات"
-            title="قريباً"
+            aria-label="رسائل التواصل"
           >
             <Bell className="h-5 w-5" />
-            <span className="absolute top-2 left-2 h-2 w-2 rounded-full bg-accent" />
-          </button>
+          </Link>
 
           <div className="hidden items-center gap-3 rounded-xl border border-border bg-primary-light/40 px-3 py-2 sm:flex">
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">

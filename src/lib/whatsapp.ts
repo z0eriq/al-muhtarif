@@ -2,7 +2,12 @@ import { SOCIAL_DEFAULTS, STORE } from "@/lib/constants";
 import { absoluteUrl } from "@/lib/utils";
 
 function normalizePhone(phone: string): string {
-  return phone.replace(/\D/g, "");
+  let digits = phone.replace(/\D/g, "");
+  if (digits.startsWith("00")) digits = digits.slice(2);
+  if (digits.startsWith("0") && digits.length >= 10) {
+    digits = `964${digits.slice(1)}`;
+  }
+  return digits;
 }
 
 export function buildWhatsAppUrl(
@@ -45,6 +50,10 @@ export function generalInquiryMessage(): string {
 
 export function orderInquiryMessage(orderNumber: string): string {
   return `مرحباً، أود الاستفسار عن الطلب رقم ${orderNumber}.`;
+}
+
+export function contactReplyMessage(name: string): string {
+  return `مرحباً ${name}، تم استلام رسالتك عبر موقع ${STORE.nameAr}.`;
 }
 
 export const DEFAULT_WHATSAPP_URL = buildWhatsAppUrl(

@@ -18,6 +18,7 @@ import {
   LogOut,
   Menu,
   X,
+  Mail,
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -34,6 +35,7 @@ const NAV_ITEMS: Array<{
   { href: "/admin/products", label: "المنتجات", icon: Package, permission: "products:view" },
   { href: "/admin/categories", label: "التصنيفات", icon: FolderTree, permission: "categories:view" },
   { href: "/admin/orders", label: "الطلبات", icon: ShoppingCart, permission: "orders:view" },
+  { href: "/admin/messages", label: "الرسائل", icon: Mail, permission: "messages:view" },
   { href: "/admin/customers", label: "العملاء", icon: Users, permission: "customers:view" },
   { href: "/admin/inventory", label: "المخزون", icon: Warehouse, permission: "inventory:view" },
   { href: "/admin/coupons", label: "القسائم", icon: TicketPercent, permission: "coupons:view" },
@@ -45,9 +47,14 @@ const NAV_ITEMS: Array<{
 type SidebarProps = {
   role: Role;
   storeName?: string;
+  unreadMessages?: number;
 };
 
-export function AdminSidebar({ role, storeName = "المحترف" }: SidebarProps) {
+export function AdminSidebar({
+  role,
+  storeName = "المحترف",
+  unreadMessages = 0,
+}: SidebarProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -78,7 +85,12 @@ export function AdminSidebar({ role, storeName = "المحترف" }: SidebarProp
             )}
           >
             <Icon className="h-4.5 w-4.5 shrink-0" />
-            <span>{item.label}</span>
+            <span className="flex-1">{item.label}</span>
+            {item.href === "/admin/messages" && unreadMessages > 0 ? (
+              <span className="rounded-full bg-accent px-2 py-0.5 text-[11px] font-bold leading-none text-white">
+                {unreadMessages > 99 ? "99+" : unreadMessages}
+              </span>
+            ) : null}
           </Link>
         );
       })}

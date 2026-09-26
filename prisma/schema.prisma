@@ -293,3 +293,19 @@ model Page {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model ContactMessage {
+  id        String    @id @default(cuid())
+  name      String
+  phone     String
+  email     String?
+  message   String    @db.Text
+  isRead    Boolean   @default(false)
+  ip        String?
+  userAgent String?   @db.Text
+  createdAt DateTime  @default(now())
+  readAt    DateTime?
+
+  @@index([isRead, createdAt])
+  @@index([createdAt])
+}

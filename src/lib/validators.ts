@@ -188,6 +188,27 @@ export const inventoryAdjustSchema = z.object({
   lowStockThreshold: z.coerce.number().int().min(0).optional(),
 });
 
+export const contactSchema = z.object({
+  name: z.string().trim().min(2, "الاسم مطلوب").max(120),
+  phone: z
+    .string()
+    .trim()
+    .min(10, "رقم الهاتف غير صالح")
+    .max(20)
+    .regex(/^[0-9+\s-]+$/, "رقم الهاتف غير صالح"),
+  email: z
+    .string()
+    .trim()
+    .email("البريد غير صالح")
+    .optional()
+    .or(z.literal(""))
+    .nullable(),
+  message: z.string().trim().min(5, "الرسالة قصيرة جداً").max(2000, "الرسالة طويلة جداً"),
+  fbp: z.string().max(256).optional().nullable(),
+  fbc: z.string().max(512).optional().nullable(),
+  eventSourceUrl: z.string().url().max(2048).optional(),
+});
+
 export const createUserSchema = z.object({
   name: z.string().trim().min(2, "الاسم مطلوب"),
   email: z
@@ -211,3 +232,4 @@ export type CouponInput = z.infer<typeof couponSchema>;
 export type OrderStatusInput = z.infer<typeof orderStatusSchema>;
 export type InventoryAdjustInput = z.infer<typeof inventoryAdjustSchema>;
 export type CreateUserInput = z.infer<typeof createUserSchema>;
+export type ContactInput = z.infer<typeof contactSchema>;

@@ -37,6 +37,7 @@ export default async function AdminDashboardPage() {
     productsCount,
     lowStockCount,
     customersCount,
+    unreadMessages,
     recentOrders,
     topProducts,
     weekOrders,
@@ -56,6 +57,7 @@ export default async function AdminDashboardPage() {
       },
     }),
     prisma.customer.count(),
+    prisma.contactMessage.count({ where: { isRead: false } }),
     prisma.order.findMany({
       take: 8,
       orderBy: { createdAt: "desc" },
@@ -151,6 +153,15 @@ export default async function AdminDashboardPage() {
           icon="customers"
           tone="primary"
         />
+        <Link href="/admin/messages" className="block">
+          <StatCard
+            title="رسائل جديدة"
+            value={unreadMessages}
+            icon="messages"
+            tone="warning"
+            hint="من صفحة تواصل معنا"
+          />
+        </Link>
       </div>
 
       <DatasetQualityCard events={datasetQuality.events} error={datasetQuality.error} />

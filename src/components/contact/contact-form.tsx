@@ -45,21 +45,23 @@ export function ContactForm() {
           eventSourceUrl: window.location.href,
         }),
       });
-      const data = (await res.json()) as {
+      const json = (await res.json()) as {
         success: boolean;
         error?: string;
         message?: string;
         eventId?: string;
+        data?: { eventId?: string };
       };
 
-      if (!res.ok || !data.success) {
-        toast.error(data.error ?? "تعذر إرسال الرسالة");
+      if (!res.ok || !json.success) {
+        toast.error(json.error ?? "تعذر إرسال الرسالة");
         return;
       }
 
-      toast.success(data.message ?? "تم إرسال رسالتك بنجاح");
-      if (data.eventId) {
-        trackMetaEvent("Lead", undefined, { eventId: data.eventId, sendToCapi: false });
+      toast.success(json.message ?? "تم إرسال رسالتك بنجاح");
+      const eventId = json.data?.eventId ?? json.eventId;
+      if (eventId) {
+        trackMetaEvent("Lead", undefined, { eventId, sendToCapi: false });
       }
       setForm({ name: "", phone: "", email: "", message: "" });
     } catch {

@@ -35,10 +35,13 @@ export default async function AdminDashboardLayout({
     redirect("/admin/login");
   }
 
-  const settings = await prisma.siteSettings.findUnique({
-    where: { id: "main" },
-    select: { storeNameAr: true },
-  });
+  const [settings, unreadMessages] = await Promise.all([
+    prisma.siteSettings.findUnique({
+      where: { id: "main" },
+      select: { storeNameAr: true },
+    }),
+    prisma.contactMessage.count({ where: { isRead: false } }),
+  ]);
 
   return (
     <div
@@ -50,6 +53,7 @@ export default async function AdminDashboardLayout({
         <AdminSidebar
           role={session.user.role}
           storeName={settings?.storeNameAr ?? "المحترف"}
+          unreadMessages={unreadMessages}
         />
         <div className="flex min-w-0 flex-1 flex-col">
           <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">{children}</main>
