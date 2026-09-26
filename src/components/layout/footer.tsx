@@ -18,6 +18,7 @@ export function Footer({ settings }: FooterProps) {
   const workingHours = settings?.workingHours ?? STORE.workingHours;
   const facebookUrl = settings?.facebookUrl ?? SOCIAL_DEFAULTS.facebookUrl;
   const instagramUrl = settings?.instagramUrl ?? SOCIAL_DEFAULTS.instagramUrl;
+  const mapsUrl = settings?.googleMapsUrl ?? STORE.mapsShareUrl;
   const year = new Date().getFullYear();
 
   return (
@@ -101,7 +102,14 @@ export function Footer({ settings }: FooterProps) {
           <ul className="space-y-3 text-sm text-white/75">
             <li className="flex items-start gap-3">
               <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-accent-2" />
-              <span>{address}</span>
+              <a
+                href={mapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-white"
+              >
+                {address}
+              </a>
             </li>
             <li className="flex items-center gap-3">
               <Phone className="h-4 w-4 shrink-0 text-accent-2" />
@@ -128,7 +136,14 @@ export function Footer({ settings }: FooterProps) {
           <p>
             © {year} {storeNameAr} ({storeNameEn}). جميع الحقوق محفوظة.
           </p>
-          <p>العراق – بابل – الحلة – شارع 40</p>
+          <a
+            href={mapsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-white/80"
+          >
+            العراق – بابل – الحلة – شارع 40
+          </a>
         </div>
       </div>
     </footer>

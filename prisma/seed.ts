@@ -418,6 +418,9 @@ async function main() {
       workingHours: "السبت – الخميس: 9:00 ص – 9:00 م",
       facebookUrl: "https://www.facebook.com/professionaltecnostore",
       instagramUrl: "https://www.instagram.com/pro_40st",
+      googleMapsUrl: "https://maps.app.goo.gl/cgcFdUcUBdXa6EKWA",
+      googleMapsEmbed:
+        "https://www.google.com/maps?q=32.4890853,44.4314874&z=17&hl=ar&output=embed",
       seoTitle: "المحترف | AL MUHTARIF — متجر إلكتروني عراقي",
       seoDescription:
         "متجر المحترف في الحلة – شارع 40: هواتف، لابتوبات، إكسسوارات وتقنية بأسعار منافسة وخدمة موثوقة.",

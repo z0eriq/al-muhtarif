@@ -1,8 +1,8 @@
 import { FacebookIcon, InstagramIcon } from "@/components/icons/social";
 import { Mail, MapPin, Phone, Clock } from "lucide-react";
 import { ContactForm } from "@/components/contact/contact-form";
-import { SOCIAL_DEFAULTS } from "@/lib/constants";
-import { extractMapsEmbedSrc } from "@/lib/http-url";
+import { SOCIAL_DEFAULTS, STORE } from "@/lib/constants";
+import { toMapsEmbedSrc } from "@/lib/http-url";
 import { getSettings } from "@/services/settings.service";
 
 export async function generateMetadata() {
@@ -16,10 +16,11 @@ export default async function ContactPage() {
   const settings = await getSettings();
   const facebookUrl = settings.facebookUrl ?? SOCIAL_DEFAULTS.facebookUrl;
   const instagramUrl = settings.instagramUrl ?? SOCIAL_DEFAULTS.instagramUrl;
-
+  const mapsUrl = settings.googleMapsUrl ?? STORE.mapsShareUrl;
   const mapEmbed =
-    extractMapsEmbedSrc(settings.googleMapsEmbed) ??
-    "https://www.google.com/maps?q=%D8%A7%D9%84%D8%AD%D9%84%D8%A9+%D8%A8%D8%A7%D8%A8%D9%84+%D8%B4%D8%A7%D8%B1%D8%B9+40&output=embed";
+    toMapsEmbedSrc(settings.googleMapsEmbed) ??
+    toMapsEmbedSrc(settings.googleMapsUrl) ??
+    STORE.mapsEmbedUrl;
 
   return (
     <div className="container-store py-8 md:py-10">
@@ -43,7 +44,14 @@ export default async function ContactPage() {
             <ul className="space-y-4 text-sm">
               <li className="flex gap-3">
                 <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
-                <span>{settings.address}</span>
+                <a
+                  href={mapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-primary"
+                >
+                  {settings.address}
+                </a>
               </li>
               <li className="flex gap-3">
                 <Phone className="h-5 w-5 shrink-0 text-primary" />
@@ -98,6 +106,16 @@ export default async function ContactPage() {
               referrerPolicy="no-referrer-when-downgrade"
               allowFullScreen
             />
+            <div className="border-t border-border px-4 py-3">
+              <a
+                href={mapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm font-medium text-primary hover:underline"
+              >
+                افتح موقع المحل في خرائط جوجل
+              </a>
+            </div>
           </div>
         </div>
       </div>

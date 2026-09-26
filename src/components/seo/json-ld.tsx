@@ -24,16 +24,18 @@ export function organizationJsonLd(settings?: {
   address?: string;
   facebookUrl?: string | null;
   instagramUrl?: string | null;
+  googleMapsUrl?: string | null;
 }) {
   const name = settings?.storeNameAr ?? STORE.nameAr;
   const sameAs = [
     settings?.facebookUrl,
     settings?.instagramUrl,
+    settings?.googleMapsUrl ?? STORE.mapsShareUrl,
   ].filter(Boolean) as string[];
 
   return {
     "@context": "https://schema.org",
-    "@type": "Organization",
+    "@type": ["Organization", "ElectronicsStore"],
     name,
     alternateName: settings?.storeNameEn ?? STORE.nameEn,
     url: absoluteUrl("/"),
@@ -47,6 +49,12 @@ export function organizationJsonLd(settings?: {
       addressRegion: "بابل",
       addressCountry: "IQ",
     },
+    geo: {
+      "@type": "GeoCoordinates",
+      latitude: STORE.mapsLat,
+      longitude: STORE.mapsLng,
+    },
+    hasMap: settings?.googleMapsUrl ?? STORE.mapsShareUrl,
     sameAs,
   };
 }

@@ -3,6 +3,7 @@ import { describe, it } from "node:test";
 import {
   extractMapsEmbedSrc,
   isOptionalHttpUrl,
+  toMapsEmbedSrc,
   toOptionalHttpUrl,
 } from "./http-url";
 
@@ -45,6 +46,24 @@ describe("extractMapsEmbedSrc", () => {
 
   it("rejects iframe HTML without a src", () => {
     assert.equal(extractMapsEmbedSrc("<iframe></iframe>"), null);
+  });
+});
+
+describe("toMapsEmbedSrc", () => {
+  it("converts a Google Maps place URL with coordinates", () => {
+    const place =
+      "https://www.google.com/maps/place/Al-Muhtarif+for+tech/@32.4890853,44.4314874,17z";
+    assert.equal(
+      toMapsEmbedSrc(place),
+      "https://www.google.com/maps?q=32.4890853,44.4314874&z=17&hl=ar&output=embed",
+    );
+  });
+
+  it("converts the store short Maps link to the embed URL", () => {
+    assert.equal(
+      toMapsEmbedSrc("https://maps.app.goo.gl/cgcFdUcUBdXa6EKWA"),
+      "https://www.google.com/maps?q=32.4890853,44.4314874&z=17&hl=ar&output=embed",
+    );
   });
 });
 

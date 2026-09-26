@@ -14,6 +14,11 @@ export const STORE = {
   logo: "/logo.png",
   logoIcon: "/logo-icon.png",
   favicon: "/logo-icon.png",
+  mapsShareUrl: "https://maps.app.goo.gl/cgcFdUcUBdXa6EKWA",
+  mapsLat: 32.4890853,
+  mapsLng: 44.4314874,
+  mapsEmbedUrl:
+    "https://www.google.com/maps?q=32.4890853,44.4314874&z=17&hl=ar&output=embed",
 } as const;
 
 export const SOCIAL_DEFAULTS = {
