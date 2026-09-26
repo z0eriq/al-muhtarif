@@ -7,7 +7,6 @@ import {
   Menu,
   Search,
   ShoppingCart,
-  User,
 } from "lucide-react";
 import { NAV_LINKS, SOCIAL_DEFAULTS, STORE } from "@/lib/constants";
 import { useCart } from "@/hooks/use-cart";
@@ -91,14 +90,6 @@ export function Header({
                   {wishlistCount > 99 ? "99+" : wishlistCount}
                 </span>
               ) : null}
-            </Link>
-
-            <Link
-              href="/admin/login"
-              aria-label="حساب الإدارة"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-xl text-foreground/80 transition hover:bg-primary-soft hover:text-primary"
-            >
-              <User className="h-5 w-5" />
             </Link>
 
             <Link

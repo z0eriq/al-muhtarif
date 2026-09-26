@@ -50,13 +50,6 @@ export function MobileNav({
         >
           السلة
         </Link>
-        <Link
-          href="/admin/login"
-          onClick={onClose}
-          className="rounded-xl px-3 py-3 text-sm font-semibold text-foreground transition hover:bg-primary-light hover:text-primary"
-        >
-          دخول الإدارة
-        </Link>
       </nav>
 
       <div className="mt-8 space-y-3 border-t border-border pt-6">
