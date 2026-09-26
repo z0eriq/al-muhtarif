@@ -1,10 +1,15 @@
 import Link from "next/link";
-import type { OrderStatus } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 import { format } from "date-fns";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/utils";
 import { ADMIN_PAGE_SIZE, ORDER_STATUS_LABELS } from "@/lib/constants";
+import {
+  adminOrdersHref,
+  orderSearchWhere,
+  parseOrderStatus,
+} from "@/lib/order-search";
 import { AdminTopbar } from "@/components/admin/topbar";
 import {
   DataTable,
@@ -23,13 +28,17 @@ export default async function AdminOrdersPage({
 }) {
   const session = await auth();
   const params = await searchParams;
-  const status =
-    typeof params.status === "string" ? (params.status as OrderStatus) : null;
+  const q = typeof params.q === "string" ? params.q.trim() : "";
+  const status = parseOrderStatus(
+    typeof params.status === "string" ? params.status : null,
+  );
   const page = Math.max(1, Number(params.page ?? 1) || 1);
   const pageSize = ADMIN_PAGE_SIZE;
 
-  const where =
-    status && status in ORDER_STATUS_LABELS ? { status } : {};
+  const where: Prisma.OrderWhereInput = {
+    ...(status ? { status } : {}),
+    ...orderSearchWhere(q),
+  };
 
   const [total, orders] = await Promise.all([
     prisma.order.count({ where }),
@@ -38,7 +47,9 @@ export default async function AdminOrdersPage({
       orderBy: { createdAt: "desc" },
       skip: (page - 1) * pageSize,
       take: pageSize,
-      include: { _count: { select: { items: true } } },
+      include: {
+        items: { select: { nameAr: true, quantity: true } },
+      },
     }),
   ]);
 
@@ -52,16 +63,39 @@ export default async function AdminOrdersPage({
         userName={session?.user?.name ?? "المدير"}
       />
 
+      <form className="flex flex-wrap gap-2" action="/admin/orders">
+        {status ? <input type="hidden" name="status" value={status} /> : null}
+        <input
+          name="q"
+          defaultValue={q}
+          placeholder="بحث برقم الطلب أو الاسم أو الهاتف أو المنتج..."
+          className="min-w-[220px] flex-1 rounded-xl border border-border bg-white px-3 py-2.5 text-sm outline-none focus:border-primary"
+        />
+        <button type="submit" className="btn-primary py-2.5 text-sm">
+          بحث
+        </button>
+        {q ? (
+          <Link
+            href={adminOrdersHref({ status })}
+            className="rounded-xl border border-border bg-white px-3 py-2.5 text-sm text-muted hover:border-primary hover:text-primary"
+          >
+            مسح
+          </Link>
+        ) : null}
+      </form>
+
       <div className="flex flex-wrap gap-2">
-        <FilterChip href="/admin/orders" active={!status} label="الكل" />
-        {(Object.keys(ORDER_STATUS_LABELS) as OrderStatus[]).map((key) => (
-          <FilterChip
-            key={key}
-            href={`/admin/orders?status=${key}`}
-            active={status === key}
-            label={ORDER_STATUS_LABELS[key]}
-          />
-        ))}
+        <FilterChip href={adminOrdersHref({ q })} active={!status} label="الكل" />
+        {(Object.keys(ORDER_STATUS_LABELS) as Array<keyof typeof ORDER_STATUS_LABELS>).map(
+          (key) => (
+            <FilterChip
+              key={key}
+              href={adminOrdersHref({ q, status: key })}
+              active={status === key}
+              label={ORDER_STATUS_LABELS[key]}
+            />
+          ),
+        )}
       </div>
 
       <DataTable
@@ -69,13 +103,13 @@ export default async function AdminOrdersPage({
           { key: "number", header: "رقم الطلب" },
           { key: "customer", header: "العميل" },
           { key: "phone", header: "الهاتف" },
-          { key: "items", header: "العناصر" },
+          { key: "items", header: "المنتجات" },
           { key: "total", header: "الإجمالي" },
           { key: "status", header: "الحالة" },
           { key: "date", header: "التاريخ" },
         ]}
         isEmpty={orders.length === 0}
-        emptyMessage="لا توجد طلبات"
+        emptyMessage={q ? "لا توجد طلبات مطابقة للبحث" : "لا توجد طلبات"}
       >
         {orders.map((order) => (
           <DataTableRow key={order.id}>
@@ -89,7 +123,13 @@ export default async function AdminOrdersPage({
             </DataTableCell>
             <DataTableCell>{order.customerName}</DataTableCell>
             <DataTableCell dir="ltr">{order.customerPhone}</DataTableCell>
-            <DataTableCell>{order._count.items}</DataTableCell>
+            <DataTableCell>
+              <p className="max-w-[18rem] truncate text-sm">
+                {order.items
+                  .map((item) => `${item.nameAr} × ${item.quantity}`)
+                  .join("، ") || "—"}
+              </p>
+            </DataTableCell>
             <DataTableCell>{formatPrice(Number(order.total))}</DataTableCell>
             <DataTableCell>
               <span className="rounded-full bg-primary-light px-2.5 py-1 text-xs font-medium text-primary">
@@ -111,7 +151,7 @@ export default async function AdminOrdersPage({
           {page > 1 ? (
             <Link
               className="rounded-lg border border-border px-3 py-1.5"
-              href={`/admin/orders?${status ? `status=${status}&` : ""}page=${page - 1}`}
+              href={adminOrdersHref({ q, status, page: page - 1 })}
             >
               السابق
             </Link>
@@ -119,7 +159,7 @@ export default async function AdminOrdersPage({
           {page < totalPages ? (
             <Link
               className="rounded-lg border border-border px-3 py-1.5"
-              href={`/admin/orders?${status ? `status=${status}&` : ""}page=${page + 1}`}
+              href={adminOrdersHref({ q, status, page: page + 1 })}
             >
               التالي
             </Link>
