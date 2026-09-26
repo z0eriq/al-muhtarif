@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { createSlug } from "@/lib/utils";
+import { AdminImageUpload } from "@/components/admin/admin-image-upload";
 import {
   DataTable,
   DataTableCell,
@@ -56,6 +57,7 @@ export function CategoriesManager({ categories, canManage }: CategoriesManagerPr
   const [form, setForm] = useState<FormState>(emptyForm);
   const [slugTouched, setSlugTouched] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [open, setOpen] = useState(false);
 
   const parentOptions = useMemo(
@@ -66,6 +68,7 @@ export function CategoriesManager({ categories, canManage }: CategoriesManagerPr
   function openCreate() {
     setForm(emptyForm);
     setSlugTouched(false);
+    setUploading(false);
     setOpen(true);
   }
 
@@ -81,6 +84,7 @@ export function CategoriesManager({ categories, canManage }: CategoriesManagerPr
       isActive: cat.isActive,
     });
     setSlugTouched(true);
+    setUploading(false);
     setOpen(true);
   }
 
@@ -232,7 +236,7 @@ export function CategoriesManager({ categories, canManage }: CategoriesManagerPr
 
       {open ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl">
+          <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl">
             <h3 className="mb-4 text-lg font-bold">
               {form.id ? "تعديل تصنيف" : "تصنيف جديد"}
             </h3>
@@ -307,14 +311,15 @@ export function CategoriesManager({ categories, canManage }: CategoriesManagerPr
                   نشط
                 </label>
               </div>
-              <input
-                className={inputClass}
-                placeholder="رابط الصورة"
-                dir="ltr"
+              <AdminImageUpload
+                folder="categories"
                 value={form.image}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, image: e.target.value }))
-                }
+                alt={form.nameAr || "صورة التصنيف"}
+                label="صورة التصنيف"
+                hint="اختر صورة من جهازك وسيتم حفظها تلقائياً"
+                onChange={(image) => setForm((prev) => ({ ...prev, image }))}
+                onBusyChange={setUploading}
+                disabled={saving}
               />
             </div>
             <div className="mt-5 flex justify-end gap-2">
@@ -328,7 +333,7 @@ export function CategoriesManager({ categories, canManage }: CategoriesManagerPr
               <button
                 type="button"
                 className="btn-primary py-2 text-sm disabled:opacity-70"
-                disabled={saving || !form.nameAr || !form.slug}
+                disabled={saving || uploading || !form.nameAr || !form.slug}
                 onClick={save}
               >
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
