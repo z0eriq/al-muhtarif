@@ -335,12 +335,3 @@ export async function getRelated(
 
   return rows.map(serializeProduct);
 }
-
-export async function getAllActiveProductSlugs(): Promise<
-  Array<{ slug: string; updatedAt: Date }>
-> {
-  return prisma.product.findMany({
-    where: { status: "ACTIVE" },
-    select: { slug: true, updatedAt: true },
-  });
-}

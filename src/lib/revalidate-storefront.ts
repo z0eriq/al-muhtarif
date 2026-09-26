@@ -12,6 +12,7 @@ const STORE_PATHS = [
 
 export function revalidateStorefront(extraPaths: string[] = []) {
   revalidatePath("/", "layout");
+  revalidatePath("/sitemap.xml");
   for (const path of STORE_PATHS) {
     revalidatePath(path);
   }

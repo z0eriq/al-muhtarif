@@ -1,17 +1,23 @@
 import type { MetadataRoute } from "next";
-import { STORE } from "@/lib/constants";
+import { sitemapBaseUrl } from "@/lib/sitemap-entries";
 
 export default function robots(): MetadataRoute.Robots {
-  const base =
-    process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ||
-    `https://${STORE.domain}`;
+  const base = sitemapBaseUrl();
 
   return {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/admin/", "/api/"],
+      disallow: [
+        "/admin/",
+        "/api/",
+        "/cart",
+        "/checkout",
+        "/wishlist",
+        "/order/",
+      ],
     },
     sitemap: `${base}/sitemap.xml`,
+    host: base,
   };
 }

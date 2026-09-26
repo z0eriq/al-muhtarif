@@ -2,7 +2,10 @@ import { CheckoutFormClient } from "@/components/checkout/checkout-form-client";
 import { getSettings } from "@/services/settings.service";
 
 export async function generateMetadata() {
-  return { title: "إتمام الطلب" };
+  return {
+    title: "إتمام الطلب",
+    robots: { index: false, follow: false },
+  };
 }
 
 export default async function CheckoutPage() {

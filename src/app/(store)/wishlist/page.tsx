@@ -5,6 +5,7 @@ import { getSettings } from "@/services/settings.service";
 export const metadata: Metadata = {
   title: "المفضلة",
   description: "المنتجات المحفوظة في المفضلة",
+  robots: { index: false, follow: false },
 };
 
 export default async function WishlistPage() {

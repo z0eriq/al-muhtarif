@@ -2,7 +2,10 @@ import { CartPageClient } from "@/components/cart/cart-page-client";
 import { getSettings } from "@/services/settings.service";
 
 export async function generateMetadata() {
-  return { title: "السلة" };
+  return {
+    title: "السلة",
+    robots: { index: false, follow: false },
+  };
 }
 
 export default async function CartPage() {
