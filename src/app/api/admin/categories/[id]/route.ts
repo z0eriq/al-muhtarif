@@ -7,6 +7,7 @@ import {
   jsonSuccess,
   zodIssues,
 } from "@/lib/admin-auth";
+import { revalidateStorefront } from "@/lib/revalidate-storefront";
 
 export async function GET(
   _request: NextRequest,
@@ -58,6 +59,7 @@ export async function PATCH(
           _count: { select: { products: true, children: true } },
         },
       });
+      revalidateStorefront([`/categories/${updated.slug}`]);
       return jsonSuccess(updated, "تم تحديث حالة التصنيف");
     }
 
@@ -97,6 +99,7 @@ export async function PATCH(
       },
     });
 
+    revalidateStorefront([`/categories/${category.slug}`]);
     return jsonSuccess(category, "تم تحديث التصنيف");
   } catch (error) {
     console.error("update category", error);
@@ -124,6 +127,7 @@ export async function DELETE(
     }
 
     await prisma.category.delete({ where: { id } });
+    revalidateStorefront(existing.slug ? [`/categories/${existing.slug}`] : []);
     return jsonSuccess({ id }, "تم حذف التصنيف");
   } catch (error) {
     console.error("delete category", error);

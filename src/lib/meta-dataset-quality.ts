@@ -36,7 +36,10 @@ export async function getDatasetQuality(): Promise<{
   url.searchParams.set("access_token", token);
 
   try {
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      signal: AbortSignal.timeout(4000),
+      cache: "no-store",
+    });
     const json = (await response.json()) as {
       web?: GraphQualityEvent[];
       error?: { message?: string };

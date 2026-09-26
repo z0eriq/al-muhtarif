@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { connection } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 export type CategoryListItem = {
@@ -14,6 +15,7 @@ export type CategoryListItem = {
 
 export const listActiveCategories = cache(
   async (): Promise<CategoryListItem[]> => {
+    await connection();
     try {
       const categories = await prisma.category.findMany({
         where: { isActive: true },
@@ -39,13 +41,15 @@ export const listActiveCategories = cache(
         sortOrder: cat.sortOrder,
         productCount: cat._count.products,
       }));
-    } catch {
+    } catch (error) {
+      console.error("listActiveCategories", error);
       return [];
     }
   },
 );
 
 export const getCategoryBySlug = cache(async (slug: string) => {
+  await connection();
   try {
     const category = await prisma.category.findFirst({
       where: { slug, isActive: true },
@@ -72,7 +76,8 @@ export const getCategoryBySlug = cache(async (slug: string) => {
       sortOrder: category.sortOrder,
       productCount: category._count.products,
     };
-  } catch {
+  } catch (error) {
+    console.error("getCategoryBySlug", error);
     return null;
   }
 });

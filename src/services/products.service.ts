@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { connection } from "next/server";
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { DEFAULT_PAGE_SIZE } from "@/lib/constants";
@@ -203,6 +204,7 @@ function buildOrderBy(
 export async function listProducts(
   filters: ProductFilters = {},
 ): Promise<PaginatedResult<SerializedProduct>> {
+  await connection();
   const page = Math.max(1, filters.page ?? 1);
   const pageSize = Math.max(1, Math.min(48, filters.pageSize ?? DEFAULT_PAGE_SIZE));
   const where = buildWhere(filters);
@@ -253,6 +255,7 @@ export async function listProducts(
 }
 
 export const getProductBySlug = cache(async (slug: string) => {
+  await connection();
   const product = await prisma.product.findFirst({
     where: { slug, status: "ACTIVE" },
     include: productInclude,
@@ -262,6 +265,7 @@ export const getProductBySlug = cache(async (slug: string) => {
 });
 
 export async function getFeatured(limit = 8): Promise<SerializedProduct[]> {
+  await connection();
   const rows = await prisma.product.findMany({
     where: { status: "ACTIVE", isFeatured: true },
     include: productInclude,
@@ -272,6 +276,7 @@ export async function getFeatured(limit = 8): Promise<SerializedProduct[]> {
 }
 
 export async function getNew(limit = 8): Promise<SerializedProduct[]> {
+  await connection();
   const rows = await prisma.product.findMany({
     where: { status: "ACTIVE", isNew: true },
     include: productInclude,
@@ -282,6 +287,7 @@ export async function getNew(limit = 8): Promise<SerializedProduct[]> {
 }
 
 export async function getOffers(limit = 8): Promise<SerializedProduct[]> {
+  await connection();
   const rows = await prisma.product.findMany({
     where: {
       status: "ACTIVE",
@@ -303,6 +309,7 @@ export async function getRelated(
   categoryIds: string[],
   limit = 4,
 ): Promise<SerializedProduct[]> {
+  await connection();
   const rows = await prisma.product.findMany({
     where: {
       status: "ACTIVE",

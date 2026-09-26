@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { connection } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { SOCIAL_DEFAULTS, STORE } from "@/lib/constants";
 import type { WhyUsItem } from "@/types";
@@ -123,6 +124,7 @@ function parseWhyUsItems(value: unknown): WhyUsItem[] {
 }
 
 export const getSettings = cache(async (): Promise<StoreSettings> => {
+  await connection();
   try {
     const settings = await prisma.siteSettings.findUnique({
       where: { id: "main" },
@@ -152,12 +154,14 @@ export const getSettings = cache(async (): Promise<StoreSettings> => {
       currencySymbol: settings.currencySymbol,
       lowStockAlert: settings.lowStockAlert,
     };
-  } catch {
+  } catch (error) {
+    console.error("getSettings", error);
     return defaultSettings;
   }
 });
 
 export const getHomeContent = cache(async (): Promise<HomeContentData> => {
+  await connection();
   try {
     const content = await prisma.homeContent.findUnique({
       where: { id: "main" },
@@ -178,17 +182,20 @@ export const getHomeContent = cache(async (): Promise<HomeContentData> => {
       aboutTitle: content.aboutTitle,
       aboutContent: content.aboutContent,
     };
-  } catch {
+  } catch (error) {
+    console.error("getHomeContent", error);
     return defaultHomeContent;
   }
 });
 
 export async function getPageBySlug(slug: string) {
+  await connection();
   try {
     return await prisma.page.findFirst({
       where: { slug, isPublished: true },
     });
-  } catch {
+  } catch (error) {
+    console.error("getPageBySlug", error);
     return null;
   }
 }

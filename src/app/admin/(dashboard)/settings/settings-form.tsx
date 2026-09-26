@@ -78,7 +78,7 @@ export function SettingsForm({ initial }: SettingsFormProps) {
           : null;
         throw new Error(issueMsg || json.error || "فشل الحفظ");
       }
-      toast.success("تم حفظ الإعدادات");
+      toast.success(json.message || "تم حفظ الإعدادات", { duration: 5000 });
       router.refresh();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "فشل الحفظ");
@@ -128,10 +128,10 @@ export function SettingsForm({ initial }: SettingsFormProps) {
             <input className={inputClass} dir="ltr" value={form.instagramUrl} onChange={(e) => set("instagramUrl", e.target.value)} placeholder="https://instagram.com/..." />
           </Field>
           <Field label="تويتر / X">
-            <input className={inputClass} dir="ltr" value={form.twitterUrl} onChange={(e) => set("twitterUrl", e.target.value)} />
+            <input className={inputClass} dir="ltr" value={form.twitterUrl} onChange={(e) => set("twitterUrl", e.target.value)} placeholder="https://x.com/..." />
           </Field>
           <Field label="يوتيوب">
-            <input className={inputClass} dir="ltr" value={form.youtubeUrl} onChange={(e) => set("youtubeUrl", e.target.value)} />
+            <input className={inputClass} dir="ltr" value={form.youtubeUrl} onChange={(e) => set("youtubeUrl", e.target.value)} placeholder="https://youtube.com/..." />
           </Field>
         </div>
       </section>
@@ -160,11 +160,12 @@ export function SettingsForm({ initial }: SettingsFormProps) {
             <input className={inputClass} value={form.currencySymbol} onChange={(e) => set("currencySymbol", e.target.value)} />
           </Field>
           <Field label="رابط الخريطة">
-            <input className={inputClass} dir="ltr" value={form.googleMapsUrl} onChange={(e) => set("googleMapsUrl", e.target.value)} />
+            <input className={inputClass} dir="ltr" value={form.googleMapsUrl} onChange={(e) => set("googleMapsUrl", e.target.value)} placeholder="https://maps.google.com/..." />
           </Field>
           <div className="sm:col-span-2">
             <Field label="تضمين الخريطة (Embed)">
-              <textarea className={inputClass} rows={3} dir="ltr" value={form.googleMapsEmbed} onChange={(e) => set("googleMapsEmbed", e.target.value)} />
+              <textarea className={inputClass} rows={3} dir="ltr" value={form.googleMapsEmbed} onChange={(e) => set("googleMapsEmbed", e.target.value)} placeholder="https://www.google.com/maps?q=...&output=embed" />
+              <p className="mt-1 text-xs text-muted">يمكنك لصق رابط التضمين أو كود iframe كاملاً.</p>
             </Field>
           </div>
         </div>

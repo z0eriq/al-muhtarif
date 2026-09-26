@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { FacebookIcon, InstagramIcon } from "@/components/icons/social";
-import { Mail, MapPin, Phone } from "lucide-react";
+import { Mail, MapPin, Phone, Clock } from "lucide-react";
 import { BrandLogo } from "@/components/layout/brand-logo";
 import { NAV_LINKS, SOCIAL_DEFAULTS, STORE } from "@/lib/constants";
 import type { StoreSettings } from "@/services/settings.service";
@@ -15,6 +15,7 @@ export function Footer({ settings }: FooterProps) {
   const email = settings?.email ?? STORE.email;
   const phone = settings?.phone ?? STORE.phone;
   const address = settings?.address ?? STORE.address;
+  const workingHours = settings?.workingHours ?? STORE.workingHours;
   const facebookUrl = settings?.facebookUrl ?? SOCIAL_DEFAULTS.facebookUrl;
   const instagramUrl = settings?.instagramUrl ?? SOCIAL_DEFAULTS.instagramUrl;
   const year = new Date().getFullYear();
@@ -24,7 +25,7 @@ export function Footer({ settings }: FooterProps) {
       <div className="container-store grid gap-10 py-12 md:grid-cols-2 lg:grid-cols-4">
         <div className="space-y-4 lg:col-span-1">
           <BrandLogo
-            src="/logo.png"
+            src={settings?.logo ?? STORE.logo}
             storeNameAr={storeNameAr}
             storeNameEn={storeNameEn}
             size="lg"
@@ -113,6 +114,10 @@ export function Footer({ settings }: FooterProps) {
               <a href={`mailto:${email}`} className="hover:text-white" dir="ltr">
                 {email}
               </a>
+            </li>
+            <li className="flex items-start gap-3">
+              <Clock className="mt-0.5 h-4 w-4 shrink-0 text-accent-2" />
+              <span>{workingHours}</span>
             </li>
           </ul>
         </div>

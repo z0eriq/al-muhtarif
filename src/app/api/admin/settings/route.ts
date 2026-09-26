@@ -8,6 +8,7 @@ import {
   zodIssues,
 } from "@/lib/admin-auth";
 import { SOCIAL_DEFAULTS, STORE } from "@/lib/constants";
+import { revalidateStorefront } from "@/lib/revalidate-storefront";
 
 export async function GET() {
   const authResult = await requireAuth("settings:view");
@@ -67,6 +68,7 @@ export async function PATCH(request: NextRequest) {
       },
     });
 
+    revalidateStorefront();
     return jsonSuccess(settings, "تم حفظ الإعدادات");
   } catch (error) {
     console.error("update settings", error);

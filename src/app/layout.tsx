@@ -12,6 +12,8 @@ import { absoluteUrl } from "@/lib/utils";
 import { getSettings } from "@/services/settings.service";
 import "./globals.css";
 
+export const dynamic = "force-dynamic";
+
 const cairo = Cairo({
   subsets: ["arabic", "latin"],
   variable: "--font-cairo",

@@ -2,6 +2,7 @@ import { FacebookIcon, InstagramIcon } from "@/components/icons/social";
 import { Mail, MapPin, Phone, Clock } from "lucide-react";
 import { ContactForm } from "@/components/contact/contact-form";
 import { SOCIAL_DEFAULTS } from "@/lib/constants";
+import { extractMapsEmbedSrc } from "@/lib/http-url";
 import { getSettings } from "@/services/settings.service";
 
 export async function generateMetadata() {
@@ -17,7 +18,7 @@ export default async function ContactPage() {
   const instagramUrl = settings.instagramUrl ?? SOCIAL_DEFAULTS.instagramUrl;
 
   const mapEmbed =
-    settings.googleMapsEmbed ??
+    extractMapsEmbedSrc(settings.googleMapsEmbed) ??
     "https://www.google.com/maps?q=%D8%A7%D9%84%D8%AD%D9%84%D8%A9+%D8%A8%D8%A7%D8%A8%D9%84+%D8%B4%D8%A7%D8%B1%D8%B9+40&output=embed";
 
   return (

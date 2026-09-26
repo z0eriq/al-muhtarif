@@ -7,6 +7,7 @@ import {
   jsonSuccess,
   zodIssues,
 } from "@/lib/admin-auth";
+import { revalidateStorefront } from "@/lib/revalidate-storefront";
 
 export async function GET() {
   const authResult = await requireAuth("categories:view");
@@ -66,6 +67,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    revalidateStorefront([`/categories/${category.slug}`]);
     return jsonSuccess(category, "تم إنشاء التصنيف", 201);
   } catch (error) {
     console.error("create category", error);

@@ -1,5 +1,15 @@
 import { z } from "zod";
 import { IRAQ_GOVERNORATES } from "@/lib/constants";
+import {
+  extractMapsEmbedSrc,
+  isOptionalHttpUrl,
+  toOptionalHttpUrl,
+} from "@/lib/http-url";
+
+const optionalHttpUrl = z
+  .union([z.string(), z.null(), z.undefined()])
+  .transform(toOptionalHttpUrl)
+  .refine(isOptionalHttpUrl, "رابط غير صالح");
 
 export const loginSchema = z.object({
   email: z
@@ -99,14 +109,16 @@ export const settingsSchema = z.object({
   whatsapp: z.string().trim().min(8, "رقم الواتساب مطلوب"),
   address: z.string().trim().min(5, "العنوان مطلوب"),
   workingHours: z.string().trim().min(2, "ساعات العمل مطلوبة"),
-  facebookUrl: z.string().url().optional().or(z.literal("")).nullable(),
-  instagramUrl: z.string().url().optional().or(z.literal("")).nullable(),
-  twitterUrl: z.string().url().optional().or(z.literal("")).nullable(),
-  youtubeUrl: z.string().url().optional().or(z.literal("")).nullable(),
+  facebookUrl: optionalHttpUrl,
+  instagramUrl: optionalHttpUrl,
+  twitterUrl: optionalHttpUrl,
+  youtubeUrl: optionalHttpUrl,
   seoTitle: z.string().trim().optional().nullable(),
   seoDescription: z.string().trim().optional().nullable(),
-  googleMapsEmbed: z.string().trim().optional().nullable(),
-  googleMapsUrl: z.string().url().optional().or(z.literal("")).nullable(),
+  googleMapsEmbed: z
+    .union([z.string(), z.null(), z.undefined()])
+    .transform(extractMapsEmbedSrc),
+  googleMapsUrl: optionalHttpUrl,
   currency: z.enum(["IQD", "USD"]).default("IQD"),
   currencySymbol: z.string().trim().min(1).default("د.ع"),
   lowStockAlert: z.coerce.number().int().min(0).default(5),

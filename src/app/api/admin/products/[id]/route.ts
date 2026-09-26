@@ -7,6 +7,7 @@ import {
   jsonSuccess,
   zodIssues,
 } from "@/lib/admin-auth";
+import { revalidateStorefront } from "@/lib/revalidate-storefront";
 
 function serializeProduct<T extends { price: unknown; compareAtPrice?: unknown }>(
   product: T,
@@ -68,6 +69,7 @@ export async function PATCH(
           categories: { include: { category: true } },
         },
       });
+      revalidateStorefront([`/product/${updated.slug}`]);
       return jsonSuccess(serializeProduct(updated), "تم تحديث حالة المنتج");
     }
 
@@ -134,6 +136,7 @@ export async function PATCH(
       });
     });
 
+    revalidateStorefront([`/product/${product.slug}`]);
     return jsonSuccess(serializeProduct(product), "تم تحديث المنتج بنجاح");
   } catch (error) {
     console.error("update product", error);
@@ -155,6 +158,7 @@ export async function DELETE(
     if (!existing) return jsonError("المنتج غير موجود", 404);
 
     await prisma.product.delete({ where: { id } });
+    revalidateStorefront(existing.slug ? [`/product/${existing.slug}`] : []);
     return jsonSuccess({ id }, "تم حذف المنتج");
   } catch (error) {
     console.error("delete product", error);

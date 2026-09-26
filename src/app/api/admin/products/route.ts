@@ -9,6 +9,7 @@ import {
   zodIssues,
 } from "@/lib/admin-auth";
 import { ADMIN_PAGE_SIZE } from "@/lib/constants";
+import { revalidateStorefront } from "@/lib/revalidate-storefront";
 
 function serializeProduct<T extends { price: unknown; compareAtPrice?: unknown }>(
   product: T,
@@ -142,6 +143,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    revalidateStorefront([`/product/${product.slug}`]);
     return jsonSuccess(serializeProduct(product), "تم إنشاء المنتج بنجاح", 201);
   } catch (error) {
     console.error("create product", error);

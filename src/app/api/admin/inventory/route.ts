@@ -7,6 +7,7 @@ import {
   jsonSuccess,
   zodIssues,
 } from "@/lib/admin-auth";
+import { revalidateStorefront } from "@/lib/revalidate-storefront";
 
 export async function PATCH(request: NextRequest) {
   const authResult = await requireAuth("inventory:manage");
@@ -43,6 +44,7 @@ export async function PATCH(request: NextRequest) {
       },
     });
 
+    revalidateStorefront();
     return jsonSuccess(product, "تم تحديث المخزون");
   } catch (error) {
     console.error("inventory adjust", error);

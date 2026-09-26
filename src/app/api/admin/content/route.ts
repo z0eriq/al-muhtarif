@@ -7,6 +7,7 @@ import {
   jsonSuccess,
   zodIssues,
 } from "@/lib/admin-auth";
+import { revalidateStorefront } from "@/lib/revalidate-storefront";
 
 export async function GET() {
   const authResult = await requireAuth("content:view");
@@ -60,6 +61,7 @@ export async function PATCH(request: NextRequest) {
       },
     });
 
+    revalidateStorefront();
     return jsonSuccess(content, "تم حفظ المحتوى");
   } catch (error) {
     console.error("update content", error);
