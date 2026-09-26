@@ -181,6 +181,7 @@ model Order {
   address         String
   notes           String?     @db.Text
   status          OrderStatus @default(NEW)
+  stockCommitted  Boolean     @default(true)
   paymentMethod   String      @default("COD")
   subtotal        Decimal     @db.Decimal(12, 2)
   discount        Decimal     @default(0) @db.Decimal(12, 2)

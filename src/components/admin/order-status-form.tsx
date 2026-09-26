@@ -19,6 +19,13 @@ export function OrderStatusForm({
   const [saving, setSaving] = useState(false);
 
   async function save() {
+    if (status === "CANCELLED") {
+      const confirmed = window.confirm(
+        "سيتم حذف الطلب بالكامل ولن يُخصم من المخزون. هل تريد المتابعة؟",
+      );
+      if (!confirmed) return;
+    }
+
     setSaving(true);
     try {
       const res = await fetch(`/api/admin/orders/${orderId}`, {
@@ -28,7 +35,11 @@ export function OrderStatusForm({
       });
       const json = await res.json();
       if (!res.ok || !json.success) throw new Error(json.error || "فشل التحديث");
-      toast.success("تم تحديث حالة الطلب");
+      toast.success(json.message || "تم تحديث حالة الطلب");
+      if (json.data?.deleted) {
+        router.push("/admin/orders");
+        return;
+      }
       startTransition(() => router.refresh());
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "فشل التحديث");
@@ -52,6 +63,9 @@ export function OrderStatusForm({
             </option>
           ))}
         </select>
+        <p className="mt-2 text-xs leading-5 text-muted">
+          الطلب الجديد لا يخصم من المخزون حتى يتم تغيير حالته. الإلغاء يحذف الطلب بالكامل دون خصم.
+        </p>
       </div>
       <button
         type="button"

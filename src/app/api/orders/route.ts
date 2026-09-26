@@ -133,23 +133,6 @@ export async function POST(request: Request) {
         },
       });
 
-      for (const item of input.items) {
-        const updated = await tx.product.updateMany({
-          where: {
-            id: item.productId,
-            stock: { gte: item.quantity },
-          },
-          data: {
-            stock: { decrement: item.quantity },
-            soldCount: { increment: item.quantity },
-          },
-        });
-
-        if (updated.count === 0) {
-          throw new Error("STOCK");
-        }
-      }
-
       return tx.order.create({
         data: {
           orderNumber,
@@ -161,6 +144,7 @@ export async function POST(request: Request) {
           district: input.district.trim(),
           address: input.address.trim(),
           notes: input.notes?.trim() || null,
+          stockCommitted: false,
           paymentMethod: "COD",
           subtotal,
           discount: 0,

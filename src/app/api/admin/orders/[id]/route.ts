@@ -8,6 +8,7 @@ import {
   jsonSuccess,
   zodIssues,
 } from "@/lib/admin-auth";
+import { applyOrderStatusChange } from "@/services/order-status.service";
 
 function serializeOrder<
   T extends {
@@ -50,17 +51,32 @@ export async function PATCH(
     }
 
     const status = parsed.data.status as OrderStatus;
-    const order = await prisma.order.update({
-      where: { id },
-      data: { status },
-      include: {
-        items: true,
-        customer: true,
-      },
-    });
+    const result = await applyOrderStatusChange(id, status);
+
+    if (result.kind === "deleted") {
+      return jsonSuccess(
+        { deleted: true, id: result.id, orderNumber: result.orderNumber },
+        "تم حذف الطلب الملغي دون خصم من المخزون",
+      );
+    }
+
+    const order =
+      result.kind === "updated"
+        ? result.order
+        : await prisma.order.findUnique({
+            where: { id },
+            include: { items: true, customer: true },
+          });
+    if (!order) return jsonError("الطلب غير موجود", 404);
 
     return jsonSuccess(serializeOrder(order), "تم تحديث حالة الطلب");
   } catch (error) {
+    if (error instanceof Error && error.message === "NOT_FOUND") {
+      return jsonError("الطلب غير موجود", 404);
+    }
+    if (error instanceof Error && error.message === "STOCK") {
+      return jsonError("المخزون غير كافٍ لتأكيد هذا الطلب", 409);
+    }
     console.error("update order", error);
     return jsonError("فشل تحديث الطلب", 500);
   }

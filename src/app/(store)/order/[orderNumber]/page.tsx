@@ -8,7 +8,7 @@ import {
   orderInquiryMessage,
 } from "@/lib/whatsapp";
 import { getSettings } from "@/services/settings.service";
-import { ORDER_STATUS_LABELS } from "@/lib/constants";
+import { ORDER_STATUS_LABELS, ORDER_TRACK_STEPS } from "@/lib/constants";
 import { PurchaseTracker } from "@/components/analytics/purchase-tracker";
 
 type PageProps = {
@@ -39,24 +39,28 @@ export default async function OrderConfirmationPage({ params }: PageProps) {
 
   return (
     <div className="container-store py-10 md:py-14">
-      <PurchaseTracker
-        orderNumber={order.orderNumber}
-        value={Number(order.total)}
-        items={order.items.map((item) => ({
-          productId: item.productId,
-          quantity: item.quantity,
-          price: Number(item.price),
-        }))}
-      />
+      {order.status === "NEW" ? (
+        <PurchaseTracker
+          orderNumber={order.orderNumber}
+          value={Number(order.total)}
+          items={order.items.map((item) => ({
+            productId: item.productId,
+            quantity: item.quantity,
+            price: Number(item.price),
+          }))}
+        />
+      ) : null}
       <div className="mx-auto max-w-2xl rounded-2xl border border-border bg-white p-6 text-center shadow-sm md:p-10">
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 text-success">
           <CheckCircle2 className="h-9 w-9" />
         </div>
         <h1 className="font-[family-name:var(--font-tajawal)] text-2xl font-extrabold md:text-3xl">
-          تم استلام طلبك بنجاح
+          {order.status === "NEW" ? "تم استلام طلبك بنجاح" : "تتبع طلبك"}
         </h1>
         <p className="mt-3 text-sm leading-7 text-muted">
-          شكراً لك. سنتواصل معك قريباً لتأكيد الطلب وترتيب التوصيل.
+          {order.status === "NEW"
+            ? "شكراً لك. سنتواصل معك قريباً لتأكيد الطلب وترتيب التوصيل."
+            : "هذه أحدث حالة لطلبك في متجر المحترف."}
         </p>
 
         <div className="mt-6 rounded-xl bg-primary-soft/60 px-4 py-4">
@@ -71,6 +75,28 @@ export default async function OrderConfirmationPage({ params }: PageProps) {
             </span>
           </p>
         </div>
+
+        <ol className="mt-6 grid grid-cols-3 gap-2 text-xs sm:grid-cols-6">
+          {ORDER_TRACK_STEPS.map((step, index) => {
+            const currentIndex =
+              order.status === "CANCELLED"
+                ? 0
+                : ORDER_TRACK_STEPS.indexOf(order.status);
+            const reached = currentIndex >= index;
+            return (
+              <li
+                key={step}
+                className={`rounded-xl px-2 py-2 ${
+                  reached
+                    ? "bg-primary text-white"
+                    : "bg-primary-soft text-muted"
+                }`}
+              >
+                {ORDER_STATUS_LABELS[step]}
+              </li>
+            );
+          })}
+        </ol>
 
         <div className="mt-6 space-y-2 text-start text-sm">
           <div className="flex justify-between gap-4 border-b border-border py-2">

@@ -4,6 +4,7 @@ import { FeaturedProducts } from "@/components/home/featured-products";
 import { HeroSection } from "@/components/home/hero-section";
 import { NewProducts } from "@/components/home/new-products";
 import { OffersSection } from "@/components/home/offers-section";
+import { OrderTrackSection } from "@/components/home/order-track-section";
 import { WhyUsSection } from "@/components/home/why-us-section";
 import { listActiveCategories } from "@/services/categories.service";
 import {
@@ -27,6 +28,7 @@ export default async function HomePage() {
   return (
     <>
       <HeroSection content={home} storeNameAr={settings.storeNameAr} />
+      <OrderTrackSection />
       <CategoriesSection categories={categories} />
       <FeaturedProducts
         products={featured}

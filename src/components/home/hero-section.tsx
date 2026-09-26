@@ -56,6 +56,9 @@ export function HeroSection({ content, storeNameAr }: HeroSectionProps) {
               {content.heroCtaSecondary}
               <ArrowLeft className="h-4 w-4" />
             </Link>
+            <a href="#track-order" className="btn-secondary">
+              تتبع طلبك
+            </a>
           </div>
         </motion.div>
 

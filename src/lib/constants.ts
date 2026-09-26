@@ -38,6 +38,15 @@ export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   CANCELLED: "ملغي",
 };
 
+export const ORDER_TRACK_STEPS: Exclude<OrderStatus, "CANCELLED">[] = [
+  "NEW",
+  "CONFIRMED",
+  "PREPARING",
+  "READY",
+  "SHIPPED",
+  "COMPLETED",
+];
+
 export const ROLE_LABELS: Record<Role, string> = {
   SUPER_ADMIN: "مدير أعلى",
   ADMIN: "مدير",
